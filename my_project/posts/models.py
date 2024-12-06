@@ -9,5 +9,11 @@ class Post(models.Model):
     slug = models.SlugField()
     date = models.DateTimeField(auto_now_add=True)
 
+
+class User(models.Model):
+    name = models.CharField(max_length=75)
+    models.EmailField((""), max_length=254) = models.TextField()
+    password = models.CharField(max_length=75)
+
     def __str__(self):
         return self.title
