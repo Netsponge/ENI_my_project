@@ -1,8 +1,9 @@
 import os
 import subprocess
 import sys
-
-
+from colorama import Fore, init
+init()
+import django
 
 # Project name and directory paths
 PROJECT_NAME = "my_project"
