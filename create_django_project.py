@@ -4,6 +4,8 @@ import sys
 from colorama import Fore, init
 init()
 import django
+from django.contrib.auth import get_user_model
+from django.core.management import call_command
 
 # Project name and directory paths
 PROJECT_NAME = "my_project"
@@ -91,22 +93,32 @@ def create_directory(path):
     os.makedirs(path, exist_ok=True)
     print(f"Directory created: {path}")
 
+
+
+# Chemin vers l'environnement virtuel et pip
+VENV_DIR = os.path.join(os.getcwd(), '.venv')
+
 def create_virtual_environment():
+    """ Crée un environnement virtuel dans le répertoire .venv """
     subprocess.run([sys.executable, "-m", "venv", VENV_DIR], check=True)
     print(f"Virtual environment created at {VENV_DIR}")
 
-def activate_virtual_environment():
-    activate_script = os.path.join(VENV_DIR, 'bin', 'activate')
-    if not os.path.isfile(activate_script):
-        print(f"The activation script was not found at {activate_script}")
-        return
-    subprocess.run(f"source {activate_script} && echo 'Virtual environment activated'", shell=True, executable='/bin/bash')
-    print("The virtual environment has been activated.")
-
 def install_django():
-    pip_path = os.path.join(VENV_DIR, 'bin', 'pip')
+    """ Installe Django dans l'environnement virtuel """
+    pip_path = os.path.join(VENV_DIR, 'bin', 'pip')  # Chemin vers pip dans l'environnement virtuel
     subprocess.check_call([pip_path, 'install', 'django'])
     print("Django installed in the virtual environment.")
+
+def setup_virtualenv():
+    """ Active l'environnement virtuel et installe les dépendances """
+    if not os.path.exists(VENV_DIR):
+        create_virtual_environment()  # Crée l'environnement virtuel si il n'existe pas
+
+    # Installer Django (même si l'env est déjà créé)
+    install_django()
+
+def main():
+    setup_virtualenv()
 
 def start_django_project():
     django_admin_path = os.path.join(VENV_DIR, 'bin', 'django-admin')
@@ -136,7 +148,6 @@ class Post(models.Model):
     slug = models.SlugField()
     date = models.DateTimeField(auto_now_add=True)
 
-    
     def __str__(self):
         return self.title
 """
@@ -414,13 +425,33 @@ def execute_django_migrations(base_dir):
         print(Fore.RED + f"Error during migrations: {e}")
     except Exception as e:
         print(Fore.RED + f"Unexpected error during migrations: {e}")
+        
+ 
 
+def create_superuser(username='admin', password='19854', email='admin@example.com'):
+    """
+    Crée un superutilisateur Django automatiquement avec gestion d'erreurs améliorée.
+    """
+    # Configuration explicite de l'environnement Django
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
-def install_compressor():
-    """Installe django-compressor dans l'environnement virtuel."""
-    pip_path = os.path.join(VENV_DIR, 'bin', 'pip')
-    subprocess.check_call([pip_path, 'install', 'django-compressor'])
-    print("django-compressor installé dans l'environnement virtuel.")
+    try:
+        # Configurer explicitement Django
+        django.setup()
+
+        # Vérifier si le superutilisateur existe déjà
+        User = get_user_model()
+
+        if User.objects.filter(username=username).exists():
+            print(f"Le superutilisateur {username} existe déjà")
+            return
+        
+        # Créer un superutilisateur via la commande Django sans interaction
+        call_command('createsuperuser', username=username, password=password, email=email, interactive=False)
+        print(f"Superutilisateur {username} créé avec succès ✅")
+
+    except Exception as e:
+        print(f"Erreur lors de la création du superutilisateur : {e}")
 
 def install_tailwind():
     """Installe Tailwind CSS via npm."""
@@ -436,21 +467,6 @@ def install_tailwind():
         print("Erreur lors de l'installation de Tailwind CSS. Assurez-vous que npm est installé.")
     except Exception as e:
         print(f"Erreur lors de l'installation de Tailwind CSS : {e}")
-
-def add_compressor_to_settings(settings_file):
-    """Ajoute django-compressor aux paramètres de settings.py."""
-    with open(settings_file, 'r') as file:
-        content = file.readlines()
-
-    for i, line in enumerate(content):
-        if line.strip().startswith("INSTALLED_APPS"):
-            content.insert(i + 1, "    'compressor',\n")
-            break
-
-    with open(settings_file, 'w') as file:
-        file.writelines(content)
-
-    print("django-compressor ajouté à INSTALLED_APPS dans settings.py.")
 
 def configure_tailwind_in_settings(settings_file):
     """Configure Tailwind CSS dans le settings.py de Django."""
@@ -577,7 +593,7 @@ def setup_project():
     """
     Fonction principale pour configurer un projet Django.
     Inclut l'installation de Django, la création de l'application 'posts', la création des migrations,
-    l'ajout des fichiers essentiels.
+    l'ajout des fichiers essentiels, et la création du superutilisateur.
     """
     print(f"Setting up the '{PROJECT_NAME}' project...")
 
@@ -587,7 +603,7 @@ def setup_project():
 
     # Création de l'environnement virtuel et activation
     create_virtual_environment()
-    activate_virtual_environment()
+   
 
     # Installation de Django et démarrage du projet
     install_django()
@@ -628,11 +644,14 @@ def setup_project():
     # Création du fichier '.gitignore'
     create_gitignore()
 
+    # Créer le superutilisateur après avoir exécuté les migrations
+    create_superuser()
+
     # Installer django-compressor et Tailwind CSS si nécessaire
     install_compressor_and_tailwind()
 
     # Mise à jour de 'settings.py' pour ajouter les configurations de compressor et tailwind
-    add_compressor_to_settings(settings_file)
+   
     configure_tailwind_in_settings(settings_file)
 
     print(Fore.YELLOW + f"'{PROJECT_NAME}' project successfully set up! 🙌🏻 🎉")
@@ -643,14 +662,8 @@ def install_compressor_and_tailwind():
     """
     Installe django-compressor et django-tailwind dans l'environnement virtuel.
     """
-    install_compressor()
+  
     install_tailwind()
 
 if __name__ == "__main__":
     setup_project()
-
-
-
-
-
-
