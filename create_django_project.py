@@ -136,6 +136,7 @@ class Post(models.Model):
     slug = models.SlugField()
     date = models.DateTimeField(auto_now_add=True)
 
+    
     def __str__(self):
         return self.title
 """
@@ -413,34 +414,6 @@ def execute_django_migrations(base_dir):
         print(Fore.RED + f"Error during migrations: {e}")
     except Exception as e:
         print(Fore.RED + f"Unexpected error during migrations: {e}")
-        
- 
-
-def create_superuser(username='admin', password='19854', email='admin@example.com'):
-    """
-    Crée un superutilisateur Django automatiquement avec gestion d'erreurs améliorée.
-    """
-    # Configuration explicite de l'environnement Django
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
-
-    try:
-        # Configurer explicitement Django
-        django.setup()
-
-        # Vérifier si le superutilisateur existe déjà
-        User = get_user_model()
-
-        if User.objects.filter(username=username).exists():
-            print(f"Le superutilisateur {username} existe déjà")
-            return
-        
-        # Créer un superutilisateur via la commande Django sans interaction
-        call_command('createsuperuser', username=username, password=password, email=email, interactive=False)
-        print(f"Superutilisateur {username} créé avec succès ✅")
-
-    except Exception as e:
-        print(f"Erreur lors de la création du superutilisateur : {e}")
-
 
 
 def install_compressor():
@@ -604,7 +577,7 @@ def setup_project():
     """
     Fonction principale pour configurer un projet Django.
     Inclut l'installation de Django, la création de l'application 'posts', la création des migrations,
-    l'ajout des fichiers essentiels, et la création du superutilisateur.
+    l'ajout des fichiers essentiels.
     """
     print(f"Setting up the '{PROJECT_NAME}' project...")
 
@@ -654,9 +627,6 @@ def setup_project():
 
     # Création du fichier '.gitignore'
     create_gitignore()
-
-    # Créer le superutilisateur après avoir exécuté les migrations
-    create_superuser()
 
     # Installer django-compressor et Tailwind CSS si nécessaire
     install_compressor_and_tailwind()
