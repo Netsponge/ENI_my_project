@@ -56,7 +56,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Cela inclut le dossier 'templates' à la racine du projet
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,10 +77,15 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'jeanbaptistemarrec',
+        'USER': 'jeanbaptistemarrec',
+        'PASSWORD': 'deathcoreé',
+        'HOST': 'localhost',  # ou l'adresse IP de votre serveur
+        'PORT': '5432',  # Port par défaut de PostgreSQL
     }
 }
+
 
 
 # Password validation

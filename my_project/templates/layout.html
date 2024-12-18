@@ -2,6 +2,7 @@
 {% load static %}
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
@@ -16,7 +17,10 @@
     <nav>
         <a href="/">Home</a> | 
         <a href="/about">About</a> | 
-        <a href="/posts">Blog</a>
+        <a href="/posts">Blog</a>|
+        <a href="{% url 'signup' %}">Sign Up</a>|
+        <a href="{% url 'login' %}">Login</a>|
+        <a href="{% url 'logout' %}">Logout</a>
     </nav>
     <main>
         {% block content %}
@@ -24,3 +28,4 @@
     </main>
 </body>
 </html>
+
